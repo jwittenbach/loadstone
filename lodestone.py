@@ -31,6 +31,10 @@ def setup(cluster):
     click.echo('running setup scripts on cluster nodes...\n')
     run_all("bash lodestone/script_all.sh", cluster) 
 
+    # run the script for master-specific configurations (Jupyter + Spark config)
+    click.echo('running script on the master node...\n')
+    run_master("bash lodestone/script_master.sh", cluster)
+
 @cli.command()
 @click.argument('cluster')
 def reboot(cluster):
