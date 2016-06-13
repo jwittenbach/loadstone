@@ -28,7 +28,7 @@ def setup(cluster):
 @cli.command()
 @click.argument('cluster')
 def reboot(cluster):
-    run_all('cd $HOME; rm -rf lodestone') 
+    run_all('rm -rf lodestone miniconda*', cluster) 
 
 def sg():
     # get Flintrock security groups and make sure ports for Jupyter notebook are open
