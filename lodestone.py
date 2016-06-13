@@ -3,21 +3,33 @@ from subprocess import call
 import boto3
 import botocore
 
+def run_all(cmd, cluster):
+    call('flintrock run-command ' + cluster + ' "' + cmd + '"', shell=True)
+
+def run_master(cmd, cluster):
+    call('flintrock run-command --master-only ' + cluster + ' "' + cmd + '"', shell=True)
+
 @click.group()
 def cli():
-    pass 
+    pass
 
-@click.command()
+@cli.command()
 @click.argument('cluster')
 def setup(cluster):
     click.echo('setting up Thunder on ' + cluster + '...')
     
     # clone the lodestone repo which contains scripts for future operations
-    cmd = ['flintrock', 'run-command', cluster]
-    call(cmd + ["sudo yum -y install git"])
-    call(cmd + ["git clone https://github.com/jwittenbach/lodestone"])
+    run_all("sudo yum -y install git", cluster)
+    run_all("cd ~; git clone https://github.com/jwittenbach/lodestone", cluster)
 
-@click.command()
+    # run the script for installation on all nodes
+    run_all("cd ~; sudo bash lodestone/script_all.sh", cluster) 
+
+@cli.command()
+@click.argument('cluster')
+def reboot(cluster):
+    run_all('cd $HOME; rm -rf lodestone') 
+
 def sg():
     # get Flintrock security groups and make sure ports for Jupyter notebook are open
     ec2 = boto3.resource(service_name='ec2')
@@ -41,9 +53,6 @@ def sg():
             if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
                 click.echo(e.response)
                 raise Exception('Unknown boto error when adding security group rule for Jupyter')
-
-cli.add_command(setup)
-cli.add_command(sg)
 
 if __name__ == '__main__':
     cli()
