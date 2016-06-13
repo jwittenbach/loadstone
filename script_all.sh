@@ -6,6 +6,7 @@ wget http://repo.continuum.io/miniconda/Miniconda-3.7.3-Linux-x86_64.sh -O minic
 bash miniconda.sh -b -p $HOME/miniconda
 export PATH=$HOME/miniconda/bin:$PATH
 conda update -y conda
+echo 'export PATH=$HOME/miniconda/bin:$PATH' >> .bashrc
 
 # install thunder and related packages
 conda install -y jupyter scikit-image
