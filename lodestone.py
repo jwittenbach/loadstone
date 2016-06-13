@@ -23,7 +23,7 @@ def setup(cluster):
     run_all("git clone https://github.com/jwittenbach/lodestone", cluster)
 
     # run the script for installation on all nodes
-    run_all("sudo bash lodestone/script_all.sh", cluster) 
+    run_all("bash lodestone/script_all.sh", cluster) 
 
 @cli.command()
 @click.argument('cluster')
