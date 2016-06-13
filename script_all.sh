@@ -8,5 +8,5 @@ export PATH=$HOME/miniconda/bin:$PATH
 conda update -y conda
 
 # install thunder and related packages
-conda install jupyter scikit-image
+conda install -y jupyter scikit-image
 pip install thunder-python
