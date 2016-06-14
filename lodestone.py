@@ -3,12 +3,6 @@ from subprocess import call
 import boto3
 import botocore
 
-def run_all(cmd, cluster):
-    call('flintrock run-command ' + cluster + ' "' + cmd + '"', shell=True)
-
-def run_master(cmd, cluster):
-    call('flintrock run-command --master-only ' + cluster + ' "' + cmd + '"', shell=True)
-
 @click.group()
 def cli():
     pass
@@ -37,8 +31,21 @@ def setup(cluster):
 
 @cli.command()
 @click.argument('cluster')
+def notebook(cluster):
+    master = get_master(cluster)
+    click.echo("view notebooks at: " + master + ':9999')
+    run_master("IPYTHON_OPTS='notebook' ./spark/bin/pyspark --master spark://" + cluster + ":7077", cluster)
+
+@cli.command()
+@click.argument('cluster')
 def reboot(cluster):
     run_all('rm -rf lodestone miniconda* .jupyter', cluster) 
+
+def run_all(cmd, cluster):
+    call('flintrock run-command ' + cluster + ' "' + cmd + '"', shell=True)
+
+def run_master(cmd, cluster):
+    call('flintrock run-command --master-only ' + cluster + ' "' + cmd + '"', shell=True)
 
 def configure_sg():
     # get Flintrock security groups and make sure ports for Jupyter notebook are open
@@ -63,6 +70,14 @@ def configure_sg():
             if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
                 click.echo(e.response)
                 raise Exception('Unknown boto error when adding security group rule for Jupyter')
+
+def get_master(cluster):
+        with open('tmp.txt', 'w+') as f:
+            call(['flintrock', 'describe', cluster], stdout=f)
+            f.seek(0)
+            s = f.read()
+        call(['rm', 'tmp.txt'])
+        return s.split('\n')[3].split(" ")[3]
 
 if __name__ == '__main__':
     cli()
