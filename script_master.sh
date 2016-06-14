@@ -15,4 +15,4 @@ c.NotebookApp.notebook_dir = os.path.expanduser('~')
 echo 'PYSPARK_PYTHON=$HOME/miniconda/bin/python' >> spark/conf/spark-env.sh
 
 # install tmux
-sudo yum install tmux
+sudo yum install -y tmux
