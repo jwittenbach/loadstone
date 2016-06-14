@@ -37,7 +37,7 @@ def notebook():
 @click.argument('cluster')
 def start(cluster):
     master = get_master(cluster)
-    cmd = "IPYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + cluster + ":7077"
+    cmd = "IPYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + master + ":7077"
     run_master("tmux new-session -d -s nbserver", cluster)
     run_master("tmux send-keys -t nbserver '" + cmd + "' C-m", cluster)
     click.echo("view notebooks at: " + master + ':9999')
