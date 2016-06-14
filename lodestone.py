@@ -29,12 +29,24 @@ def setup(cluster):
     click.echo('running script on the master node...\n')
     run_master("bash lodestone/script_master.sh", cluster)
 
-@cli.command()
+@cli.group()
+def notebook():
+    pass
+
+@notebook.command()
 @click.argument('cluster')
-def notebook(cluster):
+def start(cluster):
     master = get_master(cluster)
+    cmd = "IPYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + cluster + ":7077"
+    run_master("tmux new-session -d -s nbserver", cluster)
+    run_master("tmux send-keys -t nbserver '" + cmd + "' C-m", cluster)
     click.echo("view notebooks at: " + master + ':9999')
-    run_master("IPYTHON_OPTS='notebook' ./spark/bin/pyspark --master spark://" + cluster + ":7077", cluster)
+
+@notebook.command()
+@click.argument('cluster')
+def stop(cluster):
+    run_master("tmux send-keys -t nbserver C-c 'y' C-m", cluster)
+    run_master("tmux kill-session -t nbserver", cluster)
 
 @cli.command()
 @click.argument('cluster')
