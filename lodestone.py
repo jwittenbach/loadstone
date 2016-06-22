@@ -34,14 +34,28 @@ def notebook():
     pass
 
 @notebook.command()
+@click.option('--ssh')
 @click.argument('cluster')
-def start(cluster):
+def start(ssh, cluster):
     master = get_master(cluster)
     cmd = "IPYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + master + ":7077"
     run_master("tmux new-session -d -s nbserver", cluster)
     run_master("tmux send-keys -t nbserver '" + cmd + "' C-m", cluster)
-    click.echo("view notebooks at: " + master + ':9999')
-
+    if ssh is None:
+        click.echo("view notebooks at: " + master + ':9999')
+    else:
+        from subprocess import Popen
+        from shlex import split
+        from os.path import expanduser, expandvars, abspath, exists
+        path = abspath(expandvars(expanduser(ssh)))
+        if not exists(path):
+            raise ValueError("cannot find key file at: " + path)
+        cmd = "ssh -i " + path + " -o CheckHostIP=no -N -L 9999:" + master + ":9999 ec2-user@" + master + ' &'
+        proc = Popen(split(cmd)) 
+        click.echo("view notebooks at: localhost:9999")
+        raw_input("Press Enter to disconnect from server")
+        proc.kill()
+      
 @notebook.command()
 @click.argument('cluster')
 def stop(cluster):
@@ -77,6 +91,26 @@ def configure_sg():
                 IpProtocol='tcp',
                 FromPort=80,
                 ToPort=80,
+                CidrIp='0.0.0.0/0')
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
+                click.echo(e.response)
+                raise Exception('Unknown boto error when adding security group rule for Jupyter')
+        try:
+            sg.authorize_ingress(
+                IpProtocol='tcp',
+                FromPort=22,
+                ToPort=22,
+                CidrIp='0.0.0.0/0')
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':
+                click.echo(e.response)
+                raise Exception('Unknown boto error when adding security group rule for Jupyter')
+        try:
+            sg.authorize_ingress(
+                IpProtocol='tcp',
+                FromPort=49152,
+                ToPort=65535,
                 CidrIp='0.0.0.0/0')
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] != 'InvalidPermission.Duplicate':

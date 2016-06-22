@@ -1,3 +1,6 @@
+# install tmux
+sudo yum install -y tmux
+
 # configure Jupyter notebook
 jupyter notebook --generate-config
 
@@ -14,5 +17,3 @@ c.NotebookApp.notebook_dir = os.path.expanduser('~')
 # configure Python for Spark workers
 echo 'PYSPARK_PYTHON=$HOME/miniconda/bin/python' >> spark/conf/spark-env.sh
 
-# install tmux
-sudo yum install -y tmux
