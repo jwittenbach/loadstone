@@ -2,6 +2,7 @@ import click
 from subprocess import call 
 import boto3
 import botocore
+from six.moves import input
 
 @click.group()
 def cli():
@@ -29,6 +30,18 @@ def setup(cluster):
     click.echo('running script on the master node...\n')
     run_master("bash lodestone/script_master.sh", cluster)
 
+@cli.command()
+@click.argument('packages', nargs=-1)
+@click.argument('cluster')
+def conda_install(packages, cluster):
+    run_all("conda install -y " + " ".join(packages), cluster)
+
+@cli.command()
+@click.argument('packages', nargs=-1)
+@click.argument('cluster')
+def pip_install(packages, cluster):
+    run_all("pip install " + " ".join(packages), cluster)
+
 @cli.group()
 def notebook():
     pass
@@ -50,10 +63,10 @@ def start(ssh, cluster):
         path = abspath(expandvars(expanduser(ssh)))
         if not exists(path):
             raise ValueError("cannot find key file at: " + path)
-        cmd = "ssh -i " + path + " -o CheckHostIP=no -N -L 9999:" + master + ":9999 ec2-user@" + master + ' &'
+        cmd = "ssh -i " + path + " -o StrictHostKeyChecking=no -N -L 9999:" + master + ":9999 ec2-user@" + master + ' &'
         proc = Popen(split(cmd)) 
         click.echo("view notebooks at: localhost:9999")
-        raw_input("Press Enter to disconnect from server")
+        input("Press Enter to disconnect from server")
         proc.kill()
       
 @notebook.command()
