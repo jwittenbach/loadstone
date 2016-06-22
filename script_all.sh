@@ -9,5 +9,4 @@ conda update -y conda
 echo 'export PATH=$HOME/miniconda/bin:$PATH' >> .bashrc
 
 # install thunder and related packages
-conda install -y jupyter scikit-image
-pip install thunder-python
+conda install -y jupyter numpy scipy matplotlib 
