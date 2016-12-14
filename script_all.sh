@@ -8,5 +8,5 @@ export PATH=$HOME/miniconda/bin:$PATH
 conda update -y conda
 echo 'export PATH=$HOME/miniconda/bin:$PATH' >> .bashrc
 
-# install thunder and related packages
-conda install -y jupyter numpy scipy matplotlib 
+# install packages
+conda install -y jupyter numpy scipy matplotlib

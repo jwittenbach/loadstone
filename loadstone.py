@@ -1,5 +1,5 @@
 import click
-from subprocess import call 
+from subprocess import call
 import boto3
 import botocore
 from six.moves import input
@@ -11,12 +11,12 @@ def cli():
 @cli.command()
 @click.argument('cluster')
 def setup(cluster):
-    click.echo('setting up Thunder on ' + cluster + '...\n')
+    click.echo('setting up PySpark + Jupyter on ' + cluster + '...\n')
 
     # set up security group to allow traffic for Jupyter notebook
     click.echo('configuring security group...\n')
     configure_sg()
-    
+
     # clone the lodestone repo which contains scripts for future operations
     click.echo('downloading lodestone scripts to cluster nodes...\n')
     run_all("sudo yum -y install git", cluster)
@@ -24,7 +24,7 @@ def setup(cluster):
 
     # run the script for installation on all nodes
     click.echo('running setup scripts on cluster nodes...\n')
-    run_all("bash lodestone/script_all.sh", cluster) 
+    run_all("bash lodestone/script_all.sh", cluster)
 
     # run the script for master-specific configurations (Jupyter + Spark config)
     click.echo('running script on the master node...\n')
@@ -51,7 +51,7 @@ def notebook():
 @click.argument('cluster')
 def start(ssh, cluster):
     master = get_master(cluster)
-    cmd = "IPYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + master + ":7077"
+    cmd = "PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook ./spark/bin/pyspark --master spark://" + master + ":7077"
     run_master("tmux new-session -d -s nbserver", cluster)
     run_master("tmux send-keys -t nbserver '" + cmd + "' C-m", cluster)
     if ssh is None:
@@ -64,11 +64,11 @@ def start(ssh, cluster):
         if not exists(path):
             raise ValueError("cannot find key file at: " + path)
         cmd = "ssh -i " + path + " -o StrictHostKeyChecking=no -N -L 9999:" + master + ":9999 ec2-user@" + master + ' &'
-        proc = Popen(split(cmd)) 
+        proc = Popen(split(cmd))
         click.echo("view notebooks at: localhost:9999")
         input("Press Enter to disconnect from server")
         proc.kill()
-      
+
 @notebook.command()
 @click.argument('cluster')
 def stop(cluster):
@@ -78,7 +78,7 @@ def stop(cluster):
 @cli.command()
 @click.argument('cluster')
 def reboot(cluster):
-    run_all('rm -rf lodestone miniconda* .jupyter', cluster) 
+    run_all('rm -rf lodestone miniconda* .jupyter', cluster)
 
 def run_all(cmd, cluster):
     call('flintrock run-command ' + cluster + ' "' + cmd + '"', shell=True)

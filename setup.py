@@ -5,7 +5,7 @@ version = '0.0.1'
 setup(
     name='loadstone',
     version=version,
-    description='cli to setup Thunder on a EC2 cluster with Spark setup by flintrock',
+    description='cli to setup PySpark + Jupyter on a EC2 cluster with Spark setup by flintrock',
     long_description='See https://github.com/jwittenbach/loadstone',
     author='jwittenbach',
     author_email='jason.wittenbach@gmail.com',
