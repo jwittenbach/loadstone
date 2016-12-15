@@ -22,7 +22,7 @@ And when you're ready, you can fire up the Jupyter Notebook server
 loadstone notebook start test-cluster
 loadstone notebook stop test-cluster
 ```
-Of course at any time, you can do more advanced setup using Flintrock, or my logging into your master node
+Of course at any time, you can do more advanced setup using Flintrock, or by logging into your master node
 ```
 flintrock login test-cluster
 ```
