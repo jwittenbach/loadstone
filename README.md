@@ -27,6 +27,16 @@ Of course at any time, you can do more advanced setup using Flintrock, or my log
 flintrock login test-cluster
 ```
 
+# notes
+Loadstone currently installs the following version of Python:
+- Miniconda 3.7.3
+Loadstone currently installs the following Python packages (and dependencies) during setup:
+- Jupyter
+- NumPy
+- SciPy
+- Matplotlib
+
+
 # flintrock notes
 Currently, Loadstone only works if you are using the default configuration file for Flintrock. To set this up, first run
 ```bash
